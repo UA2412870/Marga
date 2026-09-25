@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Message From My Heart</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        rose: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            200: '#fecdd3',
+                            300: '#fda4af',
+                            400: '#fb7185',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                            800: '#9f1239',
+                            900: '#881337',
+                        },
+                        amber: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                        handwriting: ['Dancing Script', 'cursive']
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float 7s ease-in-out 3s infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-20px) rotate(5deg)' },
+                        },
+                        glow: {
+                            '0%': { boxShadow: '0 0 15px rgba(244, 63, 94, 0.3)' },
+                            '100%': { boxShadow: '0 0 30px rgba(244, 63, 94, 0.7)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e112a 50%, #2d1222 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .font-handwriting {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        /* Floating Hearts Layer */
+        .heart-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 10;
+            animation: floatUp 8s linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) scale(0.5) rotate(0deg);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.7;
+            }
+            80% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1.2) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card-hover {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card-hover:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(251, 113, 133, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 30px -10px rgba(225, 29, 72, 0.15);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.8);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(244, 63, 94, 0.4);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(244, 63, 94, 0.7);
+        }
+    </style>
+</head>
+<body class="relative min-h-screen text-slate-100 selection:bg-rose-500 selection:text-white">
+
+    <!-- Floating Background Particles Container -->
+    <div id="particles-container" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+
+    <!-- Top Floating Controls Header -->
+    <header class="fixed top-0 left-0 right-0 z-40 p-4 sm:p-6 flex justify-between items-center backdrop-blur-md bg-slate-950/30 border-b border-white/5">
+        <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
+            <span class="text-xs uppercase tracking-widest text-rose-300 font-medium">A Private Letter</span>
+        </div>
+        
+        <div class="flex items-center gap-3">
+            <!-- Audio Toggle Button -->
+            <button id="audio-toggle-btn" class="flex items-center gap-2 px-3 py-1.5 rounded-full glass-card hover:bg-white/10 text-xs sm:text-sm text-rose-200 transition-all border border-rose-500/20">
+                <i data-lucide="music" class="w-4 h-4 text-rose-400"></i>
+                <span id="audio-status-text">Play Melody</span>
+            </button>
+            
+            <!-- Customize Toggle Button -->
+            <button id="customizer-open-btn" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-600/20 hover:bg-rose-600/30 text-xs sm:text-sm text-rose-200 transition-all border border-rose-500/30">
+                <i data-lucide="sliders" class="w-4 h-4 text-rose-400"></i>
+                <span class="hidden sm:inline">Customize</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN APP CONTENT CONTAINER -->
+    <main class="relative z-20 max-w-4xl mx-auto px-4 pt-28 pb-20 space-y-16 sm:space-y-24">
+
+        <!-- HERO / INTRO SECTION -->
+        <section class="text-center space-y-6 pt-6">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-rose-300 text-sm mb-2 animate-bounce">
+                <i data-lucide="heart" class="w-4 h-4 text-rose-500 fill-rose-500"></i>
+                <span>Please Read With An Open Heart</span>
+            </div>
+
+            <h1 class="text-4xl sm:text-6xl md:text-7xl font-serif-title font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-rose-200 via-rose-300 to-amber-100 leading-tight">
+                For My Beloved <br class="hidden sm:block">
+                <span id="display-gf-name" class="font-handwriting text-rose-400 font-normal text-5xl sm:text-7xl md:text-8xl italic drop-shadow-lg">Marga</span>
+            </h1>
+
+            <p class="text-base sm:text-xl text-slate-300/90 max-w-2xl mx-auto font-light leading-relaxed px-4">
+                "I'm recording this whole message because typying didn't feel enough to show you how deeply sorry I am. I know you don't even want to look at my face right now, and I completely understand why, but please... just let me share what's inside my heart."
+            </p>
+
+            <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="#letter-section" class="w-full sm:w-auto px-8 py-3.5 rounded-full bg-gradient-to-r from-rose-600 to-rose-500 text-white font-medium hover:from-rose-500 hover:to-rose-400 shadow-lg shadow-rose-900/40 transition-all flex items-center justify-center gap-2 group">
+                    <span>Read My Letter</span>
+                    <i data-lucide="arrow-down" class="w-4 h-4 group-hover:translate-y-1 transition-transform"></i>
+                </a>
+            </div>
+        </section>
+
+        <!-- CORE EMOTIONAL EXPRESSION BANNER -->
+        <section class="relative p-8 sm:p-10 rounded-3xl glass-card border-rose-500/20 text-center space-y-6 overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-rose-600/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-10 -top-10 w-48 h-48 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <i data-lucide="quote" class="w-10 h-10 text-rose-400/40 mx-auto"></i>
+
+            <h2 class="text-2xl sm:text-3xl font-serif-title text-rose-100 font-semibold leading-snug">
+                "I am so deeply sorry. My life feels completely empty without you, and I can't bear the thought of losing us."
+            </h2>
+
+            <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
+                No words can undo my mistake, but I promise you that my love for you is unfiltered, constant, and deeper than ever. You mean the entire world to me.
+            </p>
+        </section>
+
+        <!-- INTERACTIVE STORY & REASON CARDS -->
+        <section id="story-section" class="space-y-8">
+            <div class="text-center space-y-2">
+                <h3 class="text-xs uppercase tracking-widest text-rose-400 font-semibold">Step By Step</h3>
+                <h2 class="text-3xl sm:text-4xl font-serif-title font-bold text-slate-100">What Lies In My Heart</h2>
+            </div>
+
+            <div class="grid gap-4 sm:gap-6">
+                <!-- Card 1 -->
+                <div class="glass-card glass-card-hover rounded-2xl p-6 sm:p-8 cursor-pointer transition-all duration-300 accordion-card" onclick="toggleCard(this)">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
+                                <i data-lucide="frown" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-semibold text-rose-100">Why I'm Owning My Mistake</h4>
+                                <p class="text-xs text-rose-300/80">Click to expand</p>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300 card-icon"></i>
+                    </div>
+                    <div class="card-content hidden mt-6 pt-6 border-t border-white/10 text-slate-300 text-sm sm:text-base space-y-3 leading-relaxed">
+                        <p id="display-apology-reason">
+                            I hurt you, and seeing you disappointed breaks me completely. I failed to treat you with the care, respect, and patience you deserve. I am taking full responsibility for my actions without making any excuses.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="glass-card glass-card-hover rounded-2xl p-6 sm:p-8 cursor-pointer transition-all duration-300 accordion-card" onclick="toggleCard(this)">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
+                                <i data-lucide="sparkles" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-semibold text-rose-100">What You Truly Mean To Me</h4>
+                                <p class="text-xs text-rose-300/80">Click to expand</p>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300 card-icon"></i>
+                    </div>
+                    <div class="card-content hidden mt-6 pt-6 border-t border-white/10 text-slate-300 text-sm sm:text-base space-y-3 leading-relaxed">
+                        <p id="display-value-text">
+                            You are my calm in every storm, my biggest smile, and my safest home. Living without your laughter, your warm check-ins, and your love makes the world feel monochrome. I can't walk away from us.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="glass-card glass-card-hover rounded-2xl p-6 sm:p-8 cursor-pointer transition-all duration-300 accordion-card" onclick="toggleCard(this)">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
+                                <i data-lucide="shield-check" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-semibold text-rose-100">My Promises Moving Forward</h4>
+                                <p class="text-xs text-rose-300/80">Click to expand</p>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300 card-icon"></i>
+                    </div>
+                    <div class="card-content hidden mt-6 pt-6 border-t border-white/10 text-slate-300 text-sm sm:text-base space-y-3 leading-relaxed">
+                        <ul class="list-disc list-inside space-y-2 text-slate-300">
+                            <li>To always listen to you attentively and value your emotions above everything else.</li>
+                            <li>To communicate with maturity, honesty, and continuous gentleness.</li>
+                            <li>To cherish and protect your heart every single day so you never feel hurt like this again.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                 <div class="grid gap-4 sm:gap-6">
+                <!-- Card 4 -->
+                <div class="glass-card glass-card-hover rounded-2xl p-6 sm:p-8 cursor-pointer transition-all duration-300 accordion-card" onclick="toggleCard(this)">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
+                                <i data-lucide="frown" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-semibold text-rose-100">What I look at that reminds me never to give up on you😢💕</h4>
+                                <p class="text-xs text-rose-300/80">Click to expand</p>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300 card-icon"></i>
+                    </div>
+                    <div class="card-content hidden mt-6 pt-6 border-t border-white/10 text-slate-300 text-sm sm:text-base space-y-3 leading-relaxed">
+                        <div>
+                            <p>When you told me this</p>
+                            <p class="italic my-2">"You’re the sweetest person ive meet in this world. And it hurts that we always encounter disagreements and conflicts, but I do hope that we’ll take our time, learn to love each other the way you want to be loved and grow peacefully together. I’m trying to make things easy and not be difficult but rather understanding so we’ll all be happy. From the deepest part of my heart, I love you.❤️"</p>
+                            <p>This statement runs in my mind every second I think of you Marga, I don't want us to go separate ways. Please give me a chance to prove to you what you actually mean to me, and tell you how I have been without you in my life this few days</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MEMORIES & REASONS TO HOLD ON -->
+        <section class="space-y-8">
+            <div class="text-center space-y-2">
+                <h3 class="text-xs uppercase tracking-widest text-rose-400 font-semibold">Treasured Moments</h3>
+                <h2 class="text-3xl sm:text-4xl font-serif-title font-bold text-slate-100">Why I Love You</h2>
+            </div>
+
+            <div class="grid sm:grid-cols-3 gap-4">
+                <div class="glass-card p-6 rounded-2xl border-white/5 space-y-3 text-center hover:border-rose-500/30 transition-all">
+                    <div class="w-10 h-10 mx-auto rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400">
+                        <i data-lucide="sun" class="w-5 h-5"></i>
+                    </div>
+                    <h5 class="font-semibold text-rose-200">Your Smile</h5>
+                    <p class="text-xs text-slate-300 leading-relaxed">The way your face lights up can make any dark day feel full of hope and warmth.</p>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl border-white/5 space-y-3 text-center hover:border-rose-500/30 transition-all">
+                    <div class="w-10 h-10 mx-auto rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400">
+                        <i data-lucide="heart-handshake" class="w-5 h-5"></i>
+                    </div>
+                    <h5 class="font-semibold text-rose-200">Your Kindness</h5>
+                    <p class="text-xs text-slate-300 leading-relaxed">Your compassionate heart is what made me fall in love with you in the first place.</p>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl border-white/5 space-y-3 text-center hover:border-rose-500/30 transition-all">
+                    <div class="w-10 h-10 mx-auto rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400">
+                        <i data-lucide="infinity" class="w-5 h-5"></i>
+                    </div>
+                    <h5 class="font-semibold text-rose-200">Our Future</h5>
+                    <p class="text-xs text-slate-300 leading-relaxed">Every dream I hold for tomorrow has you right at the center of it.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- UNSEAL HEART LETTER TRIGGER SECTION -->
+        <section id="letter-section" class="text-center space-y-6 pt-6">
+            <div class="p-8 sm:p-12 rounded-3xl bg-gradient-to-b from-rose-900/20 to-slate-900/80 border border-rose-500/30 shadow-2xl space-y-6 relative overflow-hidden">
+                <i data-lucide="mail-open" class="w-12 h-12 text-rose-400 mx-auto animate-pulse"></i>
+                <h3 class="text-2xl sm:text-3xl font-serif-title font-bold text-rose-100">A Personal Note Just For You</h3>
+                <p class="text-sm sm:text-base text-slate-300 max-w-md mx-auto">
+                    I wrote down every unsaid word straight from my soul. Click below to unseal this handwritten letter.
+                </p>
+                <button onclick="openLetterModal()" class="px-8 py-4 rounded-full bg-rose-500 hover:bg-rose-600 text-white font-medium shadow-lg shadow-rose-600/30 transition-all transform hover:scale-105 inline-flex items-center gap-2">
+                    <i data-lucide="heart" class="w-5 h-5 fill-white"></i>
+                    <span>Open Unsealed Letter</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- LIVE RESPONSE FORM SECTION (WEB3FORMS CONNECTED) -->
+        <section id="response-form-section" class="max-w-xl mx-auto space-y-6 pt-6">
+            <div class="p-8 sm:p-10 rounded-3xl glass-card border border-rose-500/30 shadow-2xl text-center space-y-6">
+                <i data-lucide="message-circle" class="w-10 h-10 text-rose-400 mx-auto"></i>
+                <div class="space-y-2">
+                    <h3 class="text-2xl font-serif-title font-bold text-rose-100">Leave A Reply</h3>
+                    <p class="text-sm text-slate-300">If you ever feel like leaving a reply or sharing your thoughts, type here:</p>
+                </div>
+
+                <form id="replyForm" class="space-y-4 text-left">
+                    <!-- Web3Forms Access Key Embedded -->
+                    <input type="hidden" name="access_key" value="e3d43cf1-5e14-4df7-a640-e385749a3a21">
+                    <input type="hidden" name="subject" value="New Message Received from your Apology Website!">
+
+                    <textarea name="message" rows="4" required placeholder="If you feel like leaving a reply or sharing your thoughts, type here..." class="w-full p-4 rounded-2xl bg-slate-950/60 border border-rose-500/30 text-slate-100 text-sm placeholder-slate-400 focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 transition-all resize-none"></textarea>
+
+                    <button type="submit" id="submitBtn" class="w-full py-4 rounded-full bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-semibold shadow-lg shadow-rose-900/40 transition-all flex items-center justify-center gap-2">
+                        <span>Send Response 💌</span>
+                    </button>
+                </form>
+
+                <div id="status" class="text-sm transition-all"></div>
+            </div>
+        </section>
+
+        <!-- INTERACTIVE FORGIVENESS & TALK PROMPT -->
+        <section class="text-center space-y-8 pt-6 pb-10">
+            <div class="space-y-3">
+                <h2 class="text-3xl sm:text-4xl font-serif-title font-bold text-slate-100">Can We Give Us Another Chance?</h2>
+                <p class="text-slate-400 text-sm max-w-md mx-auto">
+                    You don't have to look at me right now, but please let me know if there's hope in your heart for us.
+                </p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 relative min-h-[120px]" id="forgive-buttons-container">
+                <button id="forgive-yes-btn" onclick="handleForgiveYes()" class="w-full sm:w-auto px-10 py-4 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-lg shadow-emerald-900/30 transition-all transform hover:scale-105 flex items-center justify-center gap-2">
+                    <i data-lucide="smile" class="w-5 h-5"></i>
+                    <span>Yes, let's talk softly</span>
+                </button>
+
+                <button id="forgive-no-btn" onmouseover="moveNoButton(this)" onclick="moveNoButton(this)" class="w-full sm:w-auto px-8 py-4 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 text-sm transition-all border border-white/10 sm:absolute sm:right-1/4">
+                    <span>I still need time...</span>
+                </button>
+            </div>
+
+            <audio id= "bg-music" loop src="My audio.ogg"></audio>
+
+            <!-- Response Message Container -->
+            <div id="response-box" class="hidden p-6 rounded-2xl glass-card border-emerald-500/30 bg-emerald-950/20 max-w-lg mx-auto space-y-3 animate-fade-in">
+                <i data-lucide="heart-handshake" class="w-10 h-10 text-emerald-400 mx-auto"></i>
+                <h4 class="text-xl font-semibold text-emerald-200">Thank you so much, my love</h4>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    Thank you for opening your heart even just a tiny bit. Take all the time you need. I'm right here whenever you're ready to text or talk. I love you endlessly.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- LETTER MODAL OVERLAY -->
+    <div id="letter-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
+        <div class="relative w-full max-w-2xl bg-amber-50 text-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-6 max-h-[85vh] overflow-y-auto border-4 border-amber-200">
+            <!-- Close button -->
+            <button onclick="closeLetterModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-amber-200/60 hover:bg-amber-300 text-slate-700 flex items-center justify-center transition-all">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="text-center space-y-2 border-b border-amber-200/80 pb-4">
+                <span class="text-xs uppercase tracking-widest text-amber-800 font-semibold">From My Soul To Yours</span>
+                <h3 class="text-3xl font-serif-title font-bold text-amber-950"> <span class="letter-gf-name font-handwriting text-4xl text-rose-700">Marga❤️</span>,</h3>
+            </div>
+
+            <div class="space-y-4 text-base sm:text-lg text-slate-700 leading-relaxed font-serif-title italic px-2 sm:px-4" id="custom-modal-letter-body">
+                <p>
+                    I know you don't want to see my face right now, and I completely respect your boundaries. It breaks my heart knowing that I caused you pain, because all I ever want is to bring joy, comfort, and safety into your life.
+                </p>
+                <p>
+                    I was foolish, careless, and wrong. But please know this with every piece of your heart: you are the best thing that ever happened to me. Life without your smile, your warmth, and your presence feels completely empty.
+                </p>
+                <p>
+                    I don't expect you to forget immediately, but I beg you to let me earn back your trust. I love you more than words can ever capture, and I cannot navigate this world without you by my side.
+                </p>
+            </div>
+
+            <div class="pt-4 border-t border-amber-200/80 text-right space-y-1">
+                <p class="text-sm text-slate-500 font-serif">Forever and always yours,</p>
+                <p class="font-handwriting text-3xl font-bold text-rose-700" id="letter-sender-signature">Belle</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOMIZATION PANEL (SLIDE-OVER) -->
+    <div id="customizer-panel" class="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-slate-900 border-l border-white/10 p-6 shadow-2xl flex flex-col justify-between transform translate-x-full transition-transform duration-300">
+        <div class="space-y-6 overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                <div class="flex items-center gap-2 text-rose-300 font-semibold">
+                    <i data-lucide="edit-3" class="w-5 h-5"></i>
+                    <span>Personalize This Web App</span>
+                </div>
+                <button id="customizer-close-btn" class="text-slate-400 hover:text-white p-1">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-400">
+                Tailor these details to reflect your specific relationship so the apology speaks directly from your heart.
+            </p>
+
+            <form id="customizer-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Marga❤️</label>
+                    <input type="text" id="input-gf-name" value="My Everything" class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-white/10 text-slate-100 text-sm focus:outline-none focus:border-rose-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Belle❤️</label>
+                    <input type="text" id="input-sender-name" value="Your Loving Partner" class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-white/10 text-slate-100 text-sm focus:outline-none focus:border-rose-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Custom Apology Message / Reason</label>
+                    <textarea id="input-apology-reason" rows="3" class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-white/10 text-slate-100 text-sm focus:outline-none focus:border-rose-500">I hurt you, and seeing you disappointed breaks me completely. I failed to treat you with the care, respect, and patience you deserve. I am taking full responsibility for my actions without making any excuses.</textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Personal Letter Content</label>
+                    <textarea id="input-letter-body" rows="5" class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-white/10 text-slate-100 text-sm focus:outline-none focus:border-rose-500">I know you said you don't want to see my face right now, and I completely respect your boundaries. It breaks my heart knowing that I caused you pain, because all I ever want is to bring joy, comfort, and safety into your life.
+
+I was foolish, careless, and wrong. But please know this with every piece of your heart: you are the best thing that ever happened to me. Life without your smile, your warmth, and your presence feels completely empty.
+
+I don't expect you to forget immediately, but I beg you to let me earn back your trust. I love you more than words can ever capture, and I cannot navigate this world without you by my side.</textarea>
+                </div>
+            </form>
+        </div>
+
+        <div class="pt-4 border-t border-white/10 flex items-center gap-3">
+            <button type="button" onclick="applyCustomizations()" class="w-full py-3 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-medium text-sm transition-all">
+                Save & Apply Changes
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Background Audio player logic connected to header button
+        function toggleAudio() {
+            const bgMusic = document.getElementById('bg-music');
+            const statusText = document.getElementById('audio-status-text');
+
+            if (bgMusic.paused) {
+                bgMusic.play().then(() => {
+                    statusText.innerText = 'Pause Melody';
+                }).catch(error => {
+                    console.log("Audio play error:", error);
+                });
+            } else {
+                bgMusic.pause();
+                statusText.innerText = 'Play Melody';
+            }
+        }
+
+        document.getElementById('audio-toggle-btn').addEventListener('click', toggleAudio);
+
+        // Floating Particles / Hearts Generator
+        function createHeartParticle() {
+            const container = document.getElementById('particles-container');
+            const heart = document.createElement('div');
+            heart.classList.add('heart-particle');
+            
+            // Random styling
+            const sizes = ['12px', '16px', '20px', '24px'];
+            const colors = ['#f43f5e', '#fb7185', '#fda4af', '#e11d48', '#fecdd3'];
+            const randomSize = sizes[Math.floor(Math.random() * sizes.length)];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            const randomLeft = Math.random() * 100;
+            const randomDuration = 6 + Math.random() * 6;
+
+            heart.style.left = `${randomLeft}vw`;
+            heart.style.fontSize = randomSize;
+            heart.style.color = randomColor;
+            heart.style.animationDuration = `${randomDuration}s`;
+            heart.innerHTML = '♥️';
+
+            container.appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, randomDuration * 1000);
+        }
+
+        // Spawn initial hearts and continuous loop
+        setInterval(createHeartParticle, 600);
+        for(let i = 0; i < 8; i++) {
+            setTimeout(createHeartParticle, i * 300);
+        }
+
+        // Accordion Card Toggle Function
+        function toggleCard(cardElement) {
+            const content = cardElement.querySelector('.card-content');
+            const icon = cardElement.querySelector('.card-icon');
+            
+            const isHidden = content.classList.contains('hidden');
+
+            // Close all cards first for smooth solo display
+            document.querySelectorAll('.accordion-card').forEach(card => {
+                card.querySelector('.card-content').classList.add('hidden');
+                card.querySelector('.card-icon').style.transform = 'rotate(0deg)';
+            });
+
+            if (isHidden) {
+                content.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        // Letter Modal Open/Close Controls
+        function openLetterModal() {
+            const modal = document.getElementById('letter-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+            }, 10);
+        }
+
+        function closeLetterModal() {
+            const modal = document.getElementById('letter-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // Playful / Moving "No" button logic
+        let moveCount = 0;
+        function moveNoButton(btn) {
+            if (window.innerWidth < 640) return; // Only trigger playful move on desktop/tablets
+
+            moveCount++;
+            const x = (Math.random() - 0.5) * 200;
+            const y = (Math.random() - 0.5) * 100;
+            
+            btn.style.transform = `translate(${x}px, ${y}px)`;
+
+            if (moveCount > 3) {
+                btn.innerText = "Please rethink... ♥️";
+            }
+        }
+
+        function handleForgiveYes() {
+            const buttonsContainer = document.getElementById('forgive-buttons-container');
+            const responseBox = document.getElementById('response-box');
+
+            buttonsContainer.classList.add('hidden');
+            responseBox.classList.remove('hidden');
+
+            // Burst extra hearts effect
+            for(let i = 0; i < 25; i++) {
+                setTimeout(createHeartParticle, i * 80);
+            }
+        }
+
+        // Customizer Panel Functionality
+        const customizerPanel = document.getElementById('customizer-panel');
+        document.getElementById('customizer-open-btn').addEventListener('click', () => {
+            customizerPanel.classList.remove('translate-x-full');
+        });
+
+        document.getElementById('customizer-close-btn').addEventListener('click', () => {
+            customizerPanel.classList.add('translate-x-full');
+        });
+
+        function applyCustomizations() {
+            const gfName = document.getElementById('input-gf-name').value.trim() || 'My Everything';
+            const senderName = document.getElementById('input-sender-name').value.trim() || 'Your Loving Partner';
+            const apologyReason = document.getElementById('input-apology-reason').value.trim();
+            const letterBody = document.getElementById('input-letter-body').value.trim();
+
+            // Apply GF Name
+            document.getElementById('display-gf-name').innerText = gfName;
+            document.querySelectorAll('.letter-gf-name').forEach(el => el.innerText = gfName);
+
+            // Apply Sender Name
+            document.getElementById('letter-sender-signature').innerText = senderName;
+
+            // Apply Apology Reason
+            if (apologyReason) {
+                document.getElementById('display-apology-reason').innerText = apologyReason;
+            }
+
+            // Apply Custom Letter
+            if (letterBody) {
+                const paragraphs = letterBody.split('\n\n').map(p => `<p>${p}</p>`).join('');
+                document.getElementById('custom-modal-letter-body').innerHTML = paragraphs;
+            }
+
+            // Close panel
+            customizerPanel.classList.add('translate-x-full');
+        }
+
+        // Web3Forms Form Submission Handling
+        const replyForm = document.getElementById('replyForm');
+        const statusDiv = document.getElementById('status');
+        const submitBtn = document.getElementById('submitBtn');
+
+        replyForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Sending Message...";
+            statusDiv.className = "text-sm text-slate-300 mt-2";
+            statusDiv.innerText = "Delivering your response softly...";
+
+            const formData = new FormData(replyForm);
+            const object = Object.fromEntries(formData);
+            const json = JSON.stringify(object);
+
+            fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: json
+            })
+            .then(async (response) => {
+                let res = await response.json();
+                if (response.status === 200) {
+                    statusDiv.className = "text-sm text-emerald-400 mt-2 font-medium";
+                    statusDiv.innerText = "Thank you. Your message has been sent directly to him ❤️";
+                    replyForm.reset();
+                } else {
+                    statusDiv.className = "text-sm text-rose-400 mt-2";
+                    statusDiv.innerText = res.message || "Failed to send. Please try again.";
+                }
+            })
+            .catch(error => {
+                statusDiv.className = "text-sm text-rose-400 mt-2";
+                statusDiv.innerText = "Network error. Please try again later.";
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Send Response 💌";
+            });
+        });
+    </script>
+
+    <!-- Line 395: AUDIO CODE LOCATION BELOW -->
+    <audio id="bg-music" loop src="My audio.ogg"></audio>
+
+</body>
+</html>
