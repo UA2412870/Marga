@@ -397,8 +397,6 @@
                 </button>
             </div>
 
-            <audio id= "bg-music" loop src="My audio.mp3"></audio>
-
             <!-- Response Message Container -->
             <div id="response-box" class="hidden p-6 rounded-2xl glass-card border-emerald-500/30 bg-emerald-950/20 max-w-lg mx-auto space-y-3 animate-fade-in">
                 <i data-lucide="heart-handshake" class="w-10 h-10 text-emerald-400 mx-auto"></i>
@@ -494,28 +492,50 @@ I don't expect you to forget immediately, but I beg you to let me earn back your
         </div>
     </div>
 
+    <!-- AUDIO ELEMENT CONVERTED TO MP3 -->
+    <audio id="bg-music" loop preload="auto" src="My audio.MP3"></audio>
+
     <script>
         // Initialize Lucide Icons
         lucide.createIcons();
 
-        // Background Audio player logic connected to header button
+        // Mobile & Desktop Safe Audio Player Logic
         function toggleAudio() {
             const bgMusic = document.getElementById('bg-music');
             const statusText = document.getElementById('audio-status-text');
 
-            if (bgMusic.paused) {
-                bgMusic.play().then(() => {
-                    statusText.innerText = 'Pause Melody';
-                }).catch(error => {
-                    console.log("Audio play error:", error);
-                });
-            } else {
-                bgMusic.pause();
-                statusText.innerText = 'Play Melody';
+            if (bgMusic) {
+                if (bgMusic.paused) {
+                    bgMusic.load(); // Force iOS Safari to load audio buffer
+                    const playPromise = bgMusic.play();
+                    
+                    if (playPromise !== undefined) {
+                        playPromise.then(() => {
+                            if (statusText) statusText.innerText = 'Pause Melody';
+                        }).catch(error => {
+                            console.log("Mobile playback blocked:", error);
+                        });
+                    }
+                } else {
+                    bgMusic.pause();
+                    if (statusText) statusText.innerText = 'Play Melody';
+                }
             }
         }
 
         document.getElementById('audio-toggle-btn').addEventListener('click', toggleAudio);
+
+        // Mobile heart-tap trigger (Starts sound seamlessly on phone touch)
+        document.addEventListener('touchstart', function initialTouch() {
+            const bgMusic = document.getElementById('bg-music');
+            if (bgMusic && bgMusic.paused) {
+                bgMusic.play().then(() => {
+                    const statusText = document.getElementById('audio-status-text');
+                    if (statusText) statusText.innerText = 'Pause Melody';
+                }).catch(() => {});
+            }
+            document.removeEventListener('touchstart', initialTouch);
+        }, { once: true });
 
         // Floating Particles / Hearts Generator
         function createHeartParticle() {
@@ -699,9 +719,5 @@ I don't expect you to forget immediately, but I beg you to let me earn back your
             });
         });
     </script>
-
-    <!-- Line 395: AUDIO CODE LOCATION BELOW -->
-    <audio id="bg-music" loop src="My audio.ogg"></audio>
-
 </body>
 </html>
